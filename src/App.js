@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import "./App.scss";
 import { Auth } from "./components/Auth.js";
-import { auth, db } from "./config/firebase";
+import { auth, db, storage } from "./config/firebase";
 import {
     getDocs,
     collection,
@@ -11,8 +11,26 @@ import {
     doc,
     updateDoc,
 } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
 
 function App() {
+    //State for upload files
+    const [uploadFile, setUploadFile] = useState(null);
+
+    const uploadFileHandler = async () => {
+        if (!uploadFile) {
+            return;
+        }
+
+        const uploadFileRef = ref(storage, `projectFiles/${uploadFile.name}`);
+
+        try {
+            await uploadBytes(uploadFileRef, uploadFile);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     //State to set Movies List
     const [moviesList, setMoviesList] = useState([]);
 
@@ -42,7 +60,7 @@ function App() {
 
     useEffect(() => {
         getMovieList();
-    }, [moviesList]);
+    }, []);
 
     //Submit Movie
     const onSubmitMovie = async () => {
@@ -53,6 +71,7 @@ function App() {
                 oscar: isNewMovieOscar,
                 userId: auth?.currentUser?.uid,
             });
+            getMovieList();
         } catch (err) {
             console.error(err);
         }
@@ -62,12 +81,14 @@ function App() {
     const deleteMovie = async (id) => {
         const movieDoc = doc(db, "movies", id);
         await deleteDoc(movieDoc);
+        getMovieList();
     };
 
     //Update Movie
     const updateMovieTitle = async (id) => {
         const movieDoc = doc(db, "movies", id);
         await updateDoc(movieDoc, { title: updateTitle });
+        getMovieList();
     };
 
     return (
@@ -102,7 +123,7 @@ function App() {
 
             <h1 className="heading">Movies List</h1>
 
-            <div className="displayMovies">
+            {/* <div className="displayMovies">
                 {moviesList.map((movie) => (
                     <div>
                         <h1 style={{ color: movie.oscar ? "green" : "red" }}>
@@ -125,6 +146,14 @@ function App() {
                         </div>
                     </div>
                 ))}
+            </div> */}
+
+            <div className="uploads">
+                <input
+                    type="file"
+                    onChange={(e) => setUploadFile(e.target.files[0])}
+                />
+                <button onClick={uploadFileHandler}>Upload</button>
             </div>
         </div>
     );
