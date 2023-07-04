@@ -1,0 +1,27 @@
+.auth {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 500px;
+
+    .email,
+    .password {
+        width: 300px;
+        margin-bottom: 10px;
+        height: 30px;
+        // border-radius: 20px;
+    }
+
+    .signIn,
+    .signInGoogle,
+    .signout {
+        height: 30px;
+        width: 150px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border-color: 5px solid transparent;
+    }
+}
